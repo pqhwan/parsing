@@ -40,8 +40,6 @@ def timeinmil():
 
 def fill(C, i, k, w):
     global Rules
-    global binary_time
-    global unary_time
     #pre-terminal
     Cik = getConstituents(C,i,k)
     if k == (i+1):
@@ -51,7 +49,6 @@ def fill(C, i, k, w):
 
     #print "BINARY---------"
     #print "binary starts: " + str(k-i-1) + " j values to iterate"
-    binary_start =timeinmil()
     for j in range(i+1,k):
         C_right= getConstituents(C,j,k)
         #print str(len(C_right)) + " constituents in C_right"
@@ -67,11 +64,9 @@ def fill(C, i, k, w):
                             (c2head,C_right[c2head]),(lc,C_left[lc]),\
                             R_right[lc_rhead]*C_right[c2head][2]*C_left[lc][2])
 
-    binary_time+= timeinmil()-binary_start
     #print"----------------"
 
     #print "---------unary"
-    unary_start = timeinmil()
     change = True
     while change:
         change = False
@@ -81,7 +76,6 @@ def fill(C, i, k, w):
             for rhead in R_unary:
                 change = updateConstituent(Cik,rhead,(chead,Cik[chead]),None,\
                         R_unary[rhead]*Cik[chead][2])
-    unary_time+= timeinmil() - unary_start
 
 def parse(sentence):
     global scount
