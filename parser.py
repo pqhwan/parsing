@@ -85,8 +85,6 @@ def fill(C, i, k, w):
 
 def parse(sentence):
     N = len(sentence)
-    if N > 25:
-        return "*IGNORE*"
     C = dict()
     for n in range(1, N+1):
         for i in range(N-n+1):
@@ -126,21 +124,18 @@ def updateRuleProb(head,rc,lc,prob):
 
 def treefy(head, content, C):
     if content[1] != None:
-        print head + "-->" +content[1][0]+" " +content[0][0]
+        #print head + "-->" +content[1][0]+" " +content[0][0]
         ret = treefy(content[1][0], content[1][1], C) + " "\
                 + treefy(content[0][0],content[0][1],C)
     elif content[0] != None:
-        print head + "-->"+content[0][0]
+        #print head + "-->"+content[0][0]
         ret = treefy(content[0][0], content[0][1], C)
     else:
-        print "terminal-->" + head
+        #print "terminal-->" + head
         return head
     return "("+head+" "+ret+")"
 
 if __name__ == '__main__':
-
-    binary_time = 0
-    unary_time = 0
 
     Rules = dict()
     Sums = dict()
@@ -181,11 +176,18 @@ if __name__ == '__main__':
     output = open(sys.argv[3], 'w')
     count = 0
     for sentence in sentences:
+        print sentence
+        binary_time = 0
+        unary_time = 0
         sentence = sentence.split()
-        C = parse(sentence)
-        print "time spent on binary: " + str(float(binary_time)/1000000) + "sec"
-        print "time spent on unary: " + str(float(unary_time) /1000000) + "sec"
-        print treefy("TOP",C[0][len(sentence)]["TOP"],C)
+        if len(sentence) > 25:
+            print "*IGNORE*"
+            continue
+        else:
+            C = parse(sentence)
+            print treefy("TOP",C[0][len(sentence)]["TOP"], C)
+            #print "time spent on binary: " + str(float(binary_time)/1000000) + "sec"
+            #print "time spent on unary: " + str(float(unary_time) /1000000) + "sec"
 
 
 
