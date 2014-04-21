@@ -4,8 +4,8 @@ import time
 global Rules
 global Sums
 
-global binary_time
-global unary_time
+global scount
+global start
 
 
 def getConstituents(C,i,k):
@@ -84,13 +84,18 @@ def fill(C, i, k, w):
     unary_time+= timeinmil() - unary_start
 
 def parse(sentence):
+    global scount
+    sentence = sentence.split()
     N = len(sentence)
+    if N > 25: return "*IGNORE*"
     C = dict()
     for n in range(1, N+1):
         for i in range(N-n+1):
             #print "("+str(i)+", "+str(i+n)+")"
             fill(C, i, i+n, sentence)
-    return C
+    scount+=1
+    print str(scount)+ " sentences done in " + str(time.time() - start) + " sec"
+    return treefy("TOP",C[0][N]["TOP"], C)
 
 def addRules(count, head, rc, lc):
     global Rules
@@ -172,22 +177,38 @@ if __name__ == '__main__':
     rules_raw.close()
 
     #parsing
-    sentences = open(sys.argv[2] , 'r')
+    scount = 0
+    start = time.time()
+
+    sentences = open(sys.argv[2], 'r')
+    p = multiprocessing.Pool(processes = multiprocessing.cpu_count())
+    trees = p.map(parse, sentences)
     output = open(sys.argv[3], 'w')
-    count = 0
+    for tree in trees:
+        output.write(tree+'\n')
+
+    """
+    sentences = open(sys.argv[2] , 'r')
+    scount = 0
+    start = time.time()
     for sentence in sentences:
-        print sentence
-        binary_time = 0
-        unary_time = 0
+        #print sentence[:len(sentence)-1]
         sentence = sentence.split()
-        if len(sentence) > 25:
+        N = len(sentence)
+        if N > 25:
             print "*IGNORE*"
             continue
         else:
-            C = parse(sentence)
-            print treefy("TOP",C[0][len(sentence)]["TOP"], C)
+            binary_time = 0
+            unary_time = 0
+            tree = parse(sentence)
             #print "time spent on binary: " + str(float(binary_time)/1000000) + "sec"
-            #print "time spent on unary: " + str(float(unary_time) /1000000) + "sec"
+            #print "time spent on unary: " + str(float(unary_time) /1000000) + "sec\n"
+        scount+=1
+        #771
+    """
+    sentences.close()
+    output.close()
 
 
 

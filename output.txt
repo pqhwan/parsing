@@ -1,0 +1,2 @@
+(TOP (S (NP_VP (NP (DT_ADJP (DT the) (ADJP (RBS most) (JJ troublesome))) (NN report)) (VP (MD may) (VP (VB_NP (VB be) (NP (DT_NNP_NN_NN (DT_NNP_NN (DT_NNP (DT the) (NNP august)) (NN merchandise)) (NN trade)) (NN deficit))) (PP (JJ_IN (JJ due) (IN out)) (NP (NN tomorrow)))))) (.^ .)))
+(TOP (S (NP_VP (NP (JJ total) (NN employment)) (VP (VBZ figures) (PP (IN in) (NP (PRP$ their) (NNS calculations))))) (.^ .)))
