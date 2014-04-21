@@ -12,6 +12,9 @@ parsing for cs146 -- hk110
         #see if the final result matches the one sentence
     #got this far? nice--now try it with the whole data, get runtime
 
+    *optimization:
+        do unary
+
     ?multiprocessor
     ?underflow?
     ?how long does that thing take to run?

@@ -1,23 +1,28 @@
 import sys
 import multiprocessing
+import time
 global Rules
 global Sums
 
+global binary_time
+global unary_time
+
 
 def getConstituents(C,i,k):
+    #lazy initialization
     if i not in C:
         C[i] = dict()
     if k not in C[i]:
         C[i][k] = dict()
+
     return C[i][k]
 
-def updateConstituent(C, i, k, head, rc, lc, prob):
-    constituents = getConstituents(C,i,k)
-    if head not in constituents:
-        constituents[head] = (rc, lc, prob)
+def updateConstituent(Cik, head, rc, lc, prob):
+    if head not in Cik:
+        Cik[head] = (rc, lc, prob)
         return True
-    elif constituents[head][2] < prob:
-        constituents[head] = (rc, lc, prob)
+    elif Cik[head][2] < prob:
+        Cik[head] = (rc, lc, prob)
         return True
     return False
 
@@ -25,41 +30,58 @@ def matchRulesRight(head, unary):
     global Rules
     if head not in Rules:
         return dict()
-
     if unary:
         return Rules[head][0]
     else:
         return Rules[head][1]
 
+def timeinmil():
+    return int(time.time()*1000000)
+
 def fill(C, i, k, w):
+    global Rules
+    global binary_time
+    global unary_time
     #pre-terminal
+    Cik = getConstituents(C,i,k)
     if k == (i+1):
-        updateConstituent(C, i, k, w[i], None, None, 1.)
+        updateConstituent(Cik, w[i], None, None, 1.)
 
     #binary rules
+
+    #print "BINARY---------"
+    #print "binary starts: " + str(k-i-1) + " j values to iterate"
+    binary_start =timeinmil()
     for j in range(i+1,k):
-        print "("+str(i)+", "+str(j)+", "+str(k)+")"
-        C_right = getConstituents(C,j,k)
+        C_right= getConstituents(C,j,k)
+        #print str(len(C_right)) + " constituents in C_right"
+        C_left = getConstituents(C,i,j)
         for c2head in C_right:
+            if c2head not in Rules: continue
             R_right = matchRulesRight(c2head, False)
+            #print "\t"+ str(len(R_right)) + " rules that have this rc value"
             for lc_rhead in R_right:
-                C_left = getConstituents(C,i,j)
-                for c1head in C_left:
-                    if c1head == lc_rhead[0]:
-                        updateConstituent(C,i,k,lc_rhead[1],\
-                                (c2head,C[j][k][c2head]),(c1head,C[i][j][c1head]),\
-                                R_right[lc_rhead]*C_right[c2head][2]*C_left[c1head][2])
-    #unary
+                lc = lc_rhead[0]
+                if lc in C_left:
+                    updateConstituent(Cik,lc_rhead[1],\
+                            (c2head,C_right[c2head]),(lc,C_left[lc]),\
+                            R_right[lc_rhead]*C_right[c2head][2]*C_left[lc][2])
+
+    binary_time+= timeinmil()-binary_start
+    #print"----------------"
+
+    #print "---------unary"
+    unary_start = timeinmil()
     change = True
     while change:
         change = False
-        C_main = getConstituents(C,i,k)
-        for iterator in range(len(C_main.keys())):
-            chead = C_main.keys()[iterator]
+        for iterator in range(len(Cik)):
+            chead = Cik.keys()[iterator]
             R_unary = matchRulesRight(chead, True)
             for rhead in R_unary:
-                change = updateConstituent(C,i,k,rhead,(chead,C[i][k][chead]),None,\
-                        R_unary[rhead]*C_main[chead][2])
+                change = updateConstituent(Cik,rhead,(chead,Cik[chead]),None,\
+                        R_unary[rhead]*Cik[chead][2])
+    unary_time+= timeinmil() - unary_start
 
 def parse(sentence):
     N = len(sentence)
@@ -68,7 +90,7 @@ def parse(sentence):
     C = dict()
     for n in range(1, N+1):
         for i in range(N-n+1):
-            print "("+str(i)+", "+str(i+n)+")"
+            #print "("+str(i)+", "+str(i+n)+")"
             fill(C, i, i+n, sentence)
     return C
 
@@ -116,6 +138,10 @@ def treefy(head, content, C):
     return "("+head+" "+ret+")"
 
 if __name__ == '__main__':
+
+    binary_time = 0
+    unary_time = 0
+
     Rules = dict()
     Sums = dict()
     #first pass, sum counts, and add rule(head,lc,rc)
@@ -157,6 +183,8 @@ if __name__ == '__main__':
     for sentence in sentences:
         sentence = sentence.split()
         C = parse(sentence)
+        print "time spent on binary: " + str(float(binary_time)/1000000) + "sec"
+        print "time spent on unary: " + str(float(unary_time) /1000000) + "sec"
         print treefy("TOP",C[0][len(sentence)]["TOP"],C)
 
 
