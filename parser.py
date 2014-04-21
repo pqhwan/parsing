@@ -4,8 +4,8 @@ import time
 global Rules
 global Sums
 
-global scount
-global start
+#global scount
+#global start
 
 
 def getConstituents(C,i,k):
@@ -78,7 +78,8 @@ def fill(C, i, k, w):
                         R_unary[rhead]*Cik[chead][2])
 
 def parse(sentence):
-    global scount
+    #global scount
+    print "+",
     sentence = sentence.split()
     N = len(sentence)
     if N > 25: return "*IGNORE*"
@@ -87,8 +88,8 @@ def parse(sentence):
         for i in range(N-n+1):
             #print "("+str(i)+", "+str(i+n)+")"
             fill(C, i, i+n, sentence)
-    scount+=1
-    print str(scount)+ " sentences done in " + str(time.time() - start) + " sec"
+    #scount+=1
+    #print str(scount)+ " sentences done in " + str(time.time() - start) + " sec"
     return treefy("TOP",C[0][N]["TOP"], C)
 
 def addRules(count, head, rc, lc):
@@ -171,7 +172,7 @@ if __name__ == '__main__':
     rules_raw.close()
 
     #parsing
-    scount = 0
+    #scount = 0
     start = time.time()
 
     sentences = open(sys.argv[2], 'r')
