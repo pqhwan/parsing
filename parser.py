@@ -82,7 +82,9 @@ def parse(sentence):
     print "+",
     sentence = sentence.split()
     N = len(sentence)
-    if N > 25: return "*IGNORE*"
+    if N > 25:
+        scount+=1
+        return "*IGNORE*"
     C = dict()
     for n in range(1, N+1):
         for i in range(N-n+1):
@@ -120,8 +122,6 @@ def updateRuleProb(head,rc,lc,prob):
     else:
         Rules[rc][1][(lc,head)] = prob
 
-#def treefy(head, C, i, k):
-
 def treefy(head, content, C):
     if content[1] != None:
         #print head + "-->" +content[1][0]+" " +content[0][0]
@@ -129,11 +129,16 @@ def treefy(head, content, C):
                 + treefy(content[0][0],content[0][1],C)
     elif content[0] != None:
         #print head + "-->"+content[0][0]
+        if head.find("^") != -1:
+            head = head[:len(head)-1]
         ret = treefy(content[0][0], content[0][1], C)
     else:
         #print "terminal-->" + head
         return head
-    return "("+head+" "+ret+")"
+    if head.find("_") != -1:
+        return ret
+    else:
+        return "("+head+" "+ret+")"
 
 if __name__ == '__main__':
 
